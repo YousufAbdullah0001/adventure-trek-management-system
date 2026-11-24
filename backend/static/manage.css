@@ -1,0 +1,127 @@
+/* Styles for the Manage Data (CRUD) pages — built on top of style.css's
+   existing look and CSS variables, so the admin forms match the dashboard. */
+
+.flash-message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.flash-message.success {
+    background: #e6f4ea;
+    color: #1e7a34;
+    border: 1px solid #b7e3c3;
+}
+
+.flash-message.error {
+    background: #fdecea;
+    color: #b3261e;
+    border: 1px solid #f6c5c0;
+}
+
+.crud-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted, #6b7280);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #e2e5e9);
+    font-family: inherit;
+    font-size: 13px;
+    background: #fff;
+    color: inherit;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-save {
+    background: #398a5b;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #2f7049;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted, #6b7280);
+    text-decoration: none;
+    border: 1px solid var(--border, #e2e5e9);
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-edit {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #eef6f1;
+    color: #398a5b;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.btn-delete {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #fdecea;
+    color: #b3261e;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-delete:hover {
+    background: #f8d5d2;
+}
+
+.nav-link.active {
+    background: var(--active-bg, #eef6f1);
+}

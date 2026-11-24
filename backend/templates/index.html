@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure Trek | Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🏔</div>
+            <div>
+                <h2>Adventure<span>Trek</span></h2>
+                <small>MANAGEMENT SYSTEM</small>
+            </div>
+        </div>
+
+        <p class="menu-label">MAIN MENU</p>
+
+        <nav>
+            <a href="#dashboard" class="nav-link active"><span>▦</span> Dashboard</a>
+            <a href="#trips" class="nav-link"><span>⛰</span> Trips (view)</a>
+            <a href="#bookings" class="nav-link"><span>▤</span> Bookings (view)</a>
+        </nav>
+
+        <p class="menu-label">MANAGE DATA</p>
+
+        <nav>
+            <a href="{{ url_for('manage_list', entity='trips') }}" class="nav-link"><span>⛰</span> Trips</a>
+            <a href="{{ url_for('manage_list', entity='bookings') }}" class="nav-link"><span>▤</span> Bookings</a>
+            <a href="{{ url_for('manage_list', entity='destinations') }}" class="nav-link"><span>📍</span> Destinations</a>
+            <a href="{{ url_for('manage_list', entity='users') }}" class="nav-link"><span>♙</span> Users</a>
+            <a href="{{ url_for('manage_list', entity='guides') }}" class="nav-link"><span>♧</span> Guides</a>
+            <a href="{{ url_for('manage_list', entity='vehicles') }}" class="nav-link"><span>🚙</span> Vehicles</a>
+            <a href="{{ url_for('manage_list', entity='activities') }}" class="nav-link"><span>⚑</span> Activities</a>
+            <a href="{{ url_for('manage_list', entity='payments') }}" class="nav-link"><span>৳</span> Payments</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="admin-card">
+                <div class="avatar">A</div>
+                <div>
+                    <strong>Admin One</strong>
+                    <small>Administrator</small>
+                </div>
+            </div>
+            <p class="copyright">© 2026 Adventure Trek</p>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="dashboard">
+
+        <!-- HEADER -->
+        <header class="topbar">
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p>Welcome back! Here's what's happening with your trips.</p>
+            </div>
+            <div class="top-actions">
+                <div class="date-box">📅 {{ today }}</div>
+                <div class="profile">
+                    <div class="avatar">A</div>
+                    <div>
+                        <strong>Admin One</strong>
+                        <small>Administrator</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- WELCOME BANNER -->
+        <section class="welcome-banner">
+            <div class="welcome-text">
+                <span class="welcome-tag">EXPLORE • DISCOVER • ADVENTURE</span>
+                <h2>Make Every Journey<br>Unforgettable! 🌿</h2>
+                <p>Manage your adventures, travelers and bookings from one place.</p>
+                <a href="#trips" class="banner-button">Explore Trips →</a>
+            </div>
+            <div class="mountain-art">🏔️</div>
+        </section>
+
+        <!-- STATISTICS (rendered by Flask/Python from the database) -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-top"><span>Total Users</span><div class="stat-icon green">♙</div></div>
+                <h2>{{ "%02d"|format(total_users) }}</h2>
+                <p>Registered users</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span>Total Trips</span><div class="stat-icon blue">⛰</div></div>
+                <h2>{{ "%02d"|format(total_trips) }}</h2>
+                <p>Available trip records</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span>Total Bookings</span><div class="stat-icon orange">▤</div></div>
+                <h2>{{ "%02d"|format(total_bookings) }}</h2>
+                <p>Customer bookings</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><span>Total Revenue</span><div class="stat-icon purple">৳</div></div>
+                <h2>{{ total_revenue|money }}</h2>
+                <p>Paid payments only</p>
+            </div>
+        </section>
+
+        <!-- TRIPS AND REVENUE -->
+        <section class="content-grid">
+
+            <!-- UPCOMING TRIPS -->
+            <div class="panel" id="trips">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Upcoming Trips</h3>
+                        <p>Manage your scheduled adventures</p>
+                    </div>
+                    <a href="#trip-table" class="view-link">View All →</a>
+                </div>
+
+                {% for trip in trips %}
+                <div class="trip-item">
+                    <div class="trip-image">{{ trip.emoji }}</div>
+                    <div class="trip-info">
+                        <h4>{{ trip.title }}</h4>
+                        <p>📍 {{ trip.region }}, {{ trip.country }}</p>
+                        <small>{{ trip.date_range }}</small>
+                        <div class="seat-bar"><div style="width:{{ trip.percent }}%"></div></div>
+                        <small>{{ trip.booked_seats }} / {{ trip.max_seats }} seats booked</small>
+                    </div>
+                    <strong class="trip-price">{{ trip.price|money }}</strong>
+                </div>
+                {% else %}
+                <p class="loading-text">No upcoming trips yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- REVENUE -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Revenue Overview</h3>
+                        <p>Paid payment distribution by trip</p>
+                    </div>
+                    <span class="chart-label">BDT</span>
+                </div>
+
+                <div class="revenue-total">
+                    <h2>{{ revenue_total|money }}</h2>
+                    <p>Total collected revenue</p>
+                </div>
+
+                <div class="chart">
+                    {% for bar in revenue_chart %}
+                    <div class="chart-column">
+                        <div class="bar" style="height:{{ bar.height_pct }}%; background:{{ bar.color }}"></div>
+                        <span>{{ bar.short_title }}</span>
+                        <small>{{ "{:,.0f}".format(bar.revenue) }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="revenue-note">
+                    <span class="dot"></span>
+                    Revenue from successful payments
+                </div>
+            </div>
+
+        </section>
+
+        <!-- BOOKING TABLE -->
+        <section class="panel table-panel" id="bookings">
+            <div class="panel-heading">
+                <div>
+                    <h3>Recent Bookings</h3>
+                    <p>Latest customer booking information</p>
+                </div>
+                <a href="#booking-table" class="view-link">View All →</a>
+            </div>
+
+            <div class="table-responsive" id="booking-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>BOOKING ID</th>
+                            <th>CUSTOMER</th>
+                            <th>TRIP NAME</th>
+                            <th>SEATS</th>
+                            <th>AMOUNT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>#{{ "%03d"|format(b.id) }}</td>
+                            <td>{{ b.customer }}</td>
+                            <td>{{ b.trip }}</td>
+                            <td>{{ b.seats }}</td>
+                            <td>{{ b.amount|money }}</td>
+                            <td><span class="badge {{ b.status }}">{{ b.status|capitalize }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6" class="loading-text">No bookings yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RESOURCE OVERVIEW -->
+        <section class="resource-grid">
+            <div class="resource-card" id="destinations-section">
+                <div class="resource-icon">📍</div>
+                <div><h4>Destinations</h4><h2>{{ "%02d"|format(resources.destinations) }}</h2><p>Tour destinations</p></div>
+            </div>
+            <div class="resource-card" id="guides-section">
+                <div class="resource-icon">🧑‍✈️</div>
+                <div><h4>Guides</h4><h2>{{ "%02d"|format(resources.guides) }}</h2><p>Registered guides</p></div>
+            </div>
+            <div class="resource-card" id="vehicles-section">
+                <div class="resource-icon">🚙</div>
+                <div><h4>Vehicles</h4><h2>{{ "%02d"|format(resources.vehicles) }}</h2><p>Registered vehicles</p></div>
+            </div>
+            <div class="resource-card" id="activities-section">
+                <div class="resource-icon">🎯</div>
+                <div><h4>Activities</h4><h2>{{ "%02d"|format(resources.activities) }}</h2><p>Adventure activities</p></div>
+            </div>
+            <div class="resource-card" id="users-section">
+                <div class="resource-icon">👥</div>
+                <div><h4>Users</h4><h2>{{ "%02d"|format(resources.users) }}</h2><p>Admin and customers</p></div>
+            </div>
+            <div class="resource-card" id="payments-section">
+                <div class="resource-icon">💳</div>
+                <div><h4>Payments</h4><h2>{{ "%02d"|format(resources.payments) }}</h2><p>Payment records</p></div>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2026 Adventure Trek Management System. All Rights Reserved.</p>
+            <p>Explore • Discover • Adventure</p>
+        </footer>
+
+    </main>
+</div>
+
+</body>
+</html>

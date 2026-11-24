@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage {{ config.label }} | Adventure Trek</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='manage.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🏔</div>
+            <div>
+                <h2>Adventure<span>Trek</span></h2>
+                <small>MANAGEMENT SYSTEM</small>
+            </div>
+        </div>
+
+        <p class="menu-label">MAIN MENU</p>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="nav-link"><span>▦</span> Dashboard</a>
+        </nav>
+
+        <p class="menu-label">MANAGE DATA</p>
+        <nav>
+            {% for key, c in entities.items() %}
+            <a href="{{ url_for('manage_list', entity=key) }}" class="nav-link {{ 'active' if key == entity else '' }}">
+                <span>•</span> {{ c.label }}
+            </a>
+            {% endfor %}
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="admin-card">
+                <div class="avatar">A</div>
+                <div>
+                    <strong>Admin One</strong>
+                    <small>Administrator</small>
+                </div>
+            </div>
+            <p class="copyright">© 2026 Adventure Trek</p>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1>Manage {{ config.label }}</h1>
+                <p>Add, edit or delete {{ config.label|lower }} — changes are saved to the database immediately.</p>
+            </div>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- ADD / EDIT FORM -->
+        <section class="panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>{{ 'Edit' if editing else 'Add New' }} {{ config.label[:-1] }}</h3>
+                    <p>{{ 'Update the fields below and save.' if editing else 'Fill in the fields below and save.' }}</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('manage_save', entity=entity) }}" class="crud-form">
+                {% if editing %}
+                <input type="hidden" name="record_id" value="{{ edit_id }}">
+                {% endif %}
+
+                <div class="form-grid">
+                    {% for field in fields %}
+                    <div class="form-group">
+                        <label for="field-{{ field.name }}">{{ field.label }}{% if field.required %} *{% endif %}</label>
+
+                        {% if field.type == 'textarea' %}
+                            <textarea id="field-{{ field.name }}" name="{{ field.name }}" rows="2">{{ field.value or '' }}</textarea>
+
+                        {% elif field.type == 'select' %}
+                            <select id="field-{{ field.name }}" name="{{ field.name }}">
+                                {% for choice in field.choices %}
+                                <option value="{{ choice }}" {{ 'selected' if field.value == choice else '' }}>{{ choice|capitalize }}</option>
+                                {% endfor %}
+                            </select>
+
+                        {% elif field.type == 'select_fk' %}
+                            <select id="field-{{ field.name }}" name="{{ field.name }}">
+                                {% if field.nullable %}
+                                <option value="" {{ 'selected' if not field.value else '' }}>-- None --</option>
+                                {% endif %}
+                                {% for opt_id, opt_label in field.options %}
+                                <option value="{{ opt_id }}" {{ 'selected' if field.value == opt_id else '' }}>{{ opt_label }}</option>
+                                {% endfor %}
+                            </select>
+
+                        {% else %}
+                            <input
+                                type="{{ field.type }}"
+                                id="field-{{ field.name }}"
+                                name="{{ field.name }}"
+                                value="{{ field.value if field.value is not none else '' }}"
+                                {{ 'required' if field.required else '' }}
+                                {% if field.type == 'number' %}step="any"{% endif %}
+                            >
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">{{ 'Save Changes' if editing else 'Add ' + config.label[:-1] }}</button>
+                    {% if editing %}
+                    <a href="{{ url_for('manage_list', entity=entity) }}" class="btn-cancel">Cancel</a>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        <!-- EXISTING RECORDS -->
+        <section class="panel table-panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>Existing {{ config.label }}</h3>
+                    <p>{{ rows|length }} record(s) in the database</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for col in config.columns %}
+                            <th>{{ col|upper }}</th>
+                            {% endfor %}
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            {% for col in config.columns %}
+                            <td>{{ row[col] if row[col] is not none else '—' }}</td>
+                            {% endfor %}
+                            <td class="actions-cell">
+                                <a href="{{ url_for('manage_list', entity=entity, edit=row[config.id_field]) }}" class="btn-edit">Edit</a>
+                                <form method="POST" action="{{ url_for('manage_delete', entity=entity, record_id=row[config.id_field]) }}" class="inline-form">
+                                    <button type="submit" class="btn-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="{{ config.columns|length + 1 }}" class="loading-text">No records yet. Add one above.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+</body>
+</html>
